@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Administrar Usuarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 30%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+      .table-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        table th, table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .actions button {
+            background-color: #ffc107;
+            color: #333;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .actions button:hover {
+            background-color: #e0a800;
+        }
+
+        .actions a {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .actions a:hover {
+            background-color: #c82333;
+        }
+
+        .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-new {
+            background-color: #17dd0a;
+        }
+        .btn-clean {
+            background-color: #91959;
+        }
+    </style>
+    <script>
+        function cargarUsuario(id) {
+            fetch(`/loginqr/user/editar/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('id').value = data.id;
+                    document.getElementById('cedula').value = data.cedula;
+                    document.getElementById('nombre').value = data.nombre;
+                    document.getElementById('apellido').value = data.apellido;
+                    document.getElementById('correo').value = data.correo;
+                    document.getElementById('intentos').value = data.intentos;
+
+                    // Mostrar el campo estado
+                    document.getElementById('estadoLabel').style.display = 'block';
+                    document.getElementById('estado').style.display = 'inline-block';
+                    document.getElementById('estado').value = data.estado ? 'true' : 'false';  // Establecer el valor del estado
+                });
+        }
+    </script>
+</head>
+<body>
+
+<h2>Administrar Usuarios</h2>
+
+<form th:action="@{/user/guardar}" method="post" th:object="${usuario}">
+    <input type="hidden" id="id" name="id" th:value="${usuario.id}"/>
+    <label>Cédula:</label>
+    <input type="text" id="cedula" name="cedula" th:field="*{cedula}" required><br>
+
+    <label>Nombre:</label>
+    <input type="text" id="nombre" name="nombre" th:field="*{nombre}" required><br>
+
+    <label>Apellido:</label>
+    <input type="text" id="apellido" name="apellido" th:field="*{apellido}" required><br>
+
+    <label>Correo:</label>
+    <input type="email" id="correo" name="correo" th:field="*{correo}" required><br>
+
+    <!-- Campo Estado, oculto inicialmente -->
+    <label id="estadoLabel" style="display:none;">Estado:</label>
+    <select id="estado" name="estado" style="display:none;">
+        <option value="true">Activo</option>
+        <option value="false">Inactivo</option>
+    </select><br>
+
+    <input type="hidden" id="intentos" name="intentos" th:value="${usuario.intentos}"/>
+    <br>
+    <div class="actions">
+        <button type="submit" class="btn btn-new">Guardar</button>
+        <button type="reset" class="btn btn-clean">Limpiar</button> <!-- Botón Limpiar -->
+    </div>
+
+</form>
+
+<!-- Tabla con listado de usuarios -->
+<table>
+    <thead>
+    <tr>
+        <th>Cédula</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Correo</th>
+        <th>Estado</th>
+        <th>Intentos</th>
+        <th>Acciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="usuario : ${usuarios}">
+        <td th:text="${usuario.cedula}"></td>
+        <td th:text="${usuario.nombre}"></td>
+        <td th:text="${usuario.apellido}"></td>
+        <td th:text="${usuario.correo}"></td>
+        <td th:text="${usuario.estado ? 'Activo' : 'Inactivo'}"></td>
+        <td th:text="${usuario.intentos}"></td>
+        <td>
+            <div class="actions">
+                <button type="button" th:attr="onclick=|cargarUsuario('${usuario.id}')|">Editar</button>
+                <a th:href="@{/user/eliminar/{id}(id=${usuario.id})}"
+                   class="btn btn-danger"
+                   onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">Eliminar </a>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
