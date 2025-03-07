@@ -7,6 +7,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
+import ec.grace.loginqr.utils.NetworkUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +40,9 @@ public class QRController {
     public String showQRCodePage(Model model) {
         String token = UUID.randomUUID().toString();
         tokenStatus.put(token, false);
-        String qrText = "auth?token=" + token;
+        String ip= NetworkUtils.getRealIp();
+        String qrText = "http://"+ip+":8081/loginqr/auth?token=" + token;
+//        String qrText = "auth?token=" + token;
         model.addAttribute("qrText", qrText);
         model.addAttribute("token", token);
         return "qrpage";
@@ -127,9 +130,9 @@ public class QRController {
         Boolean isScanned = tokenStatus.getOrDefault(token, false);
 
         if (Boolean.TRUE.equals(isScanned)) {
-            return new RedirectView("/loginqr/login/bienvenido");
+//            return new RedirectView("/loginqr/login/bienvenido");
+            return new RedirectView("http://localhost:8080/consumowscrud/swagger-ui.html");
         }
-
         return new RedirectView("/loginqr/login/");
     }
 

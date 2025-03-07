@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'ec.grace.loginqr'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 
 java {
 	toolchain {
@@ -39,4 +39,9 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+jar {
+	archiveBaseName.set('loginqr')
+//	archiveVersion.set('1.0.0')
 }
