@@ -40,8 +40,3 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-jar {
-	archiveBaseName.set('loginqr')
-//	archiveVersion.set('1.0.0')
-}
