@@ -35,7 +35,6 @@
             const token = document.getElementById("token").value;
             window.location.href = "/loginqr/login/check-token-redirect?token=" + token;
         }
-
         setTimeout(verificarToken, 5000);
 
     </script>
@@ -46,6 +45,8 @@
 
     <img th:src="@{/login/generateQR(url=${qrText})}" alt="Código QR">
     <input type="hidden" id="token" th:value="${token}">
+    <input type="hidden" id="qrText" th:value="${qrText}">
+<!--    <input id="qrText" th:value="${qrText}">-->
 </div>
 </body>
 </html>

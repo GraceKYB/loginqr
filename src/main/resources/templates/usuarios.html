@@ -234,6 +234,10 @@
                 <a th:href="@{/user/eliminar/{id}(id=${usuario.id})}"
                    class="btn btn-danger"
                    onclick="return confirm('¿Seguro que deseas eliminar este usuario?')">Eliminar </a>
+<!--                <a th:href="@{'/login/generateQR?url=http://192.168.100.1:8081/loginqr/auth?token=' + ${usuario.id}}"-->
+<!--                   target="_blank" class="btn btn-info">-->
+<!--                    Generar QR-->
+<!--                </a>-->
             </div>
         </td>
     </tr>

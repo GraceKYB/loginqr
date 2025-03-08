@@ -7,7 +7,7 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
-import ec.grace.loginqr.utils.NetworkUtils;
+import ec.grace.loginqr.utils.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +32,7 @@ public class QRController {
 
     // Mapa para almacenar tokens generados y su estado
     private static final ConcurrentHashMap<String, Boolean> tokenStatus = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, Usuario> userMap = new ConcurrentHashMap<>();
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -40,9 +41,9 @@ public class QRController {
     public String showQRCodePage(Model model) {
         String token = UUID.randomUUID().toString();
         tokenStatus.put(token, false);
-        String ip= NetworkUtils.getRealIp();
-        String qrText = "http://"+ip+":8081/loginqr/auth?token=" + token;
-//        String qrText = "auth?token=" + token;
+//        String ip= NetworkUtils.getRealIp();
+//        String qrText = "http://"+ip+":8081/loginqr/auth?token=" + token;
+        String qrText = "http://" + Constant.ipWS + ":8081/loginqr/auth?token=" + token;
         model.addAttribute("qrText", qrText);
         model.addAttribute("token", token);
         return "qrpage";
@@ -80,12 +81,12 @@ public class QRController {
         }
         // Verificar si el usuario está bloqueado
         if (!usuario.getEstado()) {
-            return ResponseEntity.badRequest().body( "Usuario bloqueado por intentos fallidos");
+            return ResponseEntity.badRequest().body("Usuario bloqueado por intentos fallidos");
         }
 
         if (token == null || tokenStatus.containsKey(token)) {
             boolean tokeUsado = tokenStatus.get(token);
-            if(tokeUsado){
+            if (tokeUsado) {
                 // Si el token no es válido o ha expirado, verificar los intentos
                 return validarIntentosToken(usuario);
             }
@@ -103,13 +104,14 @@ public class QRController {
         usuario.setIntentos(0);
         usuarioRepository.save(usuario); // Reiniciar intentos en la base de datos
 
+        userMap.put(token, usuario);
         // Redirigir a la página de bienvenida
         return ResponseEntity.ok("INICIANDO SESIÓN........");
     }
 
 
     private ResponseEntity<String> validarIntentosToken(Usuario usuario) {
-        int intentos = usuario.getIntentos()==null?0: usuario.getIntentos();
+        int intentos = usuario.getIntentos() == null ? 0 : usuario.getIntentos();
 
         if (intentos >= 3) {
             // Si los intentos son 3 o más, bloquear al usuario
@@ -124,14 +126,17 @@ public class QRController {
         }
     }
 
-
     @GetMapping("/check-token-redirect")
     public RedirectView checkTokenRedirect(@RequestParam String token) {
         Boolean isScanned = tokenStatus.getOrDefault(token, false);
-
+        Usuario user = userMap.get(token);
         if (Boolean.TRUE.equals(isScanned)) {
-//            return new RedirectView("/loginqr/login/bienvenido");
-            return new RedirectView("http://localhost:8080/consumowscrud/swagger-ui.html");
+            String cedula = user.getCedula();
+            String nombre = user.getNombre();
+            String correo = user.getCorreo();
+            String url = "http://" + Constant.ipWS + ":8080/consumowscrud/?cedula="
+                    + cedula + "&nombre=" + nombre + "&correo=" + correo;
+            return new RedirectView(url);
         }
         return new RedirectView("/loginqr/login/");
     }

@@ -2,6 +2,7 @@ package ec.grace.loginqr.controller;
 
 import ec.grace.loginqr.entity.Usuario;
 import ec.grace.loginqr.service.UsuarioService;
+import ec.grace.loginqr.utils.Constant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/user")
 public class UsuarioController {
+
+    public String ipWS = Constant.ipWS;
 
     @Autowired
     private UsuarioService usuarioService;
